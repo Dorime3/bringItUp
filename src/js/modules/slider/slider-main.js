@@ -29,7 +29,7 @@ export default class MainSlider extends Slider {
         } catch(e) {};
 
         this.slides.forEach(slide => {
-            slide.classList.add('animated');
+            // slide.classList.add('animated');
             slide.style.display = 'none';
         });
 

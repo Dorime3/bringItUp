@@ -2763,6 +2763,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_slider_slider_main__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/slider/slider-main */ "./src/js/modules/slider/slider-main.js");
 /* harmony import */ var _modules_slider_slider_mini__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/slider/slider-mini */ "./src/js/modules/slider/slider-mini.js");
 /* harmony import */ var _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/playVideo */ "./src/js/modules/playVideo.js");
+/* harmony import */ var _modules_difference__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/difference */ "./src/js/modules/difference.js");
+
 
 
 
@@ -2785,7 +2787,8 @@ window.addEventListener('DOMContentLoaded', function () {
     prev: '.modules__info-btns .slick-prev',
     next: '.modules__info-btns .slick-next',
     activeClass: 'card-active',
-    animate: true
+    animate: true,
+    autoplay: true
   });
   modulesSlider.init();
   var feedSlider = new _modules_slider_slider_mini__WEBPACK_IMPORTED_MODULE_1__["default"]({
@@ -2797,7 +2800,69 @@ window.addEventListener('DOMContentLoaded', function () {
   feedSlider.init();
   var player = new _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__["default"]('.showup .play', '.overlay');
   player.init();
+  new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"]('.officerold', '.officernew', '.officer__card-item').init();
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/difference.js":
+/*!**************************************!*\
+  !*** ./src/js/modules/difference.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Difference; });
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__);
+
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Difference =
+/*#__PURE__*/
+function () {
+  function Difference(oldOfficer, newOfficer, items) {
+    _classCallCheck(this, Difference);
+
+    this.oldOfficer = document.querySelector(oldOfficer);
+    this.newOfficer = document.querySelector(newOfficer);
+    this.items = items;
+  }
+
+  _createClass(Difference, [{
+    key: "hideItems",
+    value: function hideItems() {
+      this.oldOfficer.querySelector(this.items).forEach(function (item, i, arr) {
+        //1-перебираемые элемент, 2-номер по порядку, 3-массив который мы сейчас перебираем
+        if (i !== arr.length - 1) {
+          item.style.display = 'none';
+        }
+      });
+      this.newOfficer.querySelector(this.items).forEach(function (item, i, arr) {
+        //1-перебираемые элемент, 2-номер по порядку, 3-массив который мы сейчас перебираем
+        if (i !== arr.length - 1) {
+          item.style.display = 'none';
+        }
+      });
+    }
+  }, {
+    key: "init",
+    value: function init() {
+      this.hideItems();
+    }
+  }]);
+
+  return Difference;
+}();
+
+
 
 /***/ }),
 
@@ -2991,7 +3056,7 @@ function (_Slider) {
 
       ;
       this.slides.forEach(function (slide) {
-        slide.classList.add('animated');
+        // slide.classList.add('animated');
         slide.style.display = 'none';
       });
       this.slides[this.slideIndex - 1].style.display = 'block';
@@ -3117,11 +3182,31 @@ function (_Slider) {
           slide.querySelector('.card__controls-arrow').style.opacity = '0';
         }
       });
-      this.slides[0].classList.add(this.activeClass);
+
+      if (!this.slides[0].closest('button')) {
+        this.slides[0].classList.add(this.activeClass);
+      }
 
       if (this.animate) {
         this.slides[0].querySelector('.card__title').style.opacity = '1';
         this.slides[0].querySelector('.card__controls-arrow').style.opacity = '1';
+      }
+    }
+  }, {
+    key: "nextSlide",
+    value: function nextSlide() {
+      if (this.slides[1].tagName == "BUTTON" && this.slides[2].tagName == "BUTTON") {
+        this.container.appendChild(this.slides[0]);
+        this.container.appendChild(this.slides[1]);
+        this.container.appendChild(this.slides[2]);
+        this.decorizeSlides();
+      } else if (this.slides[1].tagName == "BUTTON") {
+        this.container.appendChild(this.slides[0]);
+        this.container.appendChild(this.slides[1]);
+        this.decorizeSlides();
+      } else {
+        this.container.appendChild(this.slides[0]);
+        this.decorizeSlides();
       }
     }
   }, {
@@ -3130,24 +3215,44 @@ function (_Slider) {
       var _this2 = this;
 
       this.next.addEventListener('click', function () {
-        _this2.container.appendChild(_this2.slides[0]);
-
-        _this2.decorizeSlides();
+        return _this2.nextSlide();
       });
       this.prev.addEventListener('click', function () {
-        var active = _this2.slides[_this2.slides.length - 1];
+        for (var i = _this2.slides.length - 1; i > 0; i--) {
+          if (_this2.slides[i].tagName !== 'BUTTON') {
+            var active = _this2.slides[i];
 
-        _this2.container.insertBefore(active, _this2.slides[0]);
+            _this2.container.insertBefore(active, _this2.slides[0]);
 
-        _this2.decorizeSlides();
+            _this2.decorizeSlides();
+
+            break;
+          }
+        }
       });
     }
   }, {
     key: "init",
     value: function init() {
+      var _this3 = this;
+
       this.container.style.cssText = "\n        display: flex;\n        flex-wrap: wrap;\n        overflow: hidden;\n        align-items: flex-start;\n        ";
       this.bindTriggers();
       this.decorizeSlides();
+
+      if (this.autoplay) {
+        var paused = setInterval(function () {
+          return _this3.nextSlide();
+        }, 5000);
+        this.slides[0].parentNode.addEventListener('mouseenter', function () {
+          clearInterval(paused);
+        });
+        this.slides[0].parentNode.addEventListener('mouseleave', function () {
+          setInterval(function () {
+            return _this3.nextSlide();
+          }, 5000);
+        });
+      }
     }
   }]);
 
