@@ -8,12 +8,16 @@ export default class VideoPlayer {
     bindTriggers() {
         this.btns.forEach(btn => {
             btn.addEventListener('click', () => {
+                this.activeBtn = btn;
                 if (document.querySelector('iframe#frame')) {
                     this.overlay.style.display = 'flex';
+                    if (this.path !== btn.getAttribute('data-url')) {
+                        this.path = btn.getAttribute('data-url');
+                        this.player.loadVideoById({videoId: this.path});
+                    }
                 } else {
-                    const path = btn.getAttribute('data-url');
-
-                    this.createPlayer(path);
+                    this.path = btn.getAttribute('data-url');
+                    this.createPlayer(this.path);
                 }
             })
         })
@@ -30,21 +34,29 @@ export default class VideoPlayer {
         this.player = new YT.Player('frame', {
             height: '100%',
             width: '100%',
-            videoId: `${url}`
+            videoId: `${url}`,
+            events: {
+                'onStateChange': this.onPlayerStateChange
+            }
         });
 
-        console.log(this.player);
         this.overlay.style.display = 'flex';
         }
 
-    init() {
-        const tag = document.createElement('script');
+        onPlayerStateChange(state) {
+            const blockedElem = this.activeBtn.closest('.module__video-item')
+        }
 
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    
-        this.bindTriggers();
-        this.bindCloseBtn();
+    init() {
+        if (this.btns.length > 0) {
+            const tag = document.createElement('script');
+
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        
+            this.bindTriggers();
+            this.bindCloseBtn();    
+        }
     }
 }

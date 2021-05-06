@@ -1,8 +1,8 @@
 import Slider from './slider';
 
 export default class MainSlider extends Slider {
-    constructor(btns) {
-        super(btns);
+    constructor(btns, prevBtns, nextBtns) {
+        super(btns, prevBtns, nextBtns);
     }
 
     showSlides(n) { // скрываем все слайды и показываем нужный
@@ -11,7 +11,7 @@ export default class MainSlider extends Slider {
         }
 
         if (n < 1) {
-            this.slideIndex = this.slideIndex.length;
+            this.slideIndex = this.slides.length;
         }
 
         try {
@@ -42,14 +42,7 @@ export default class MainSlider extends Slider {
         this.showSlides(this.slideIndex += n);
     }
 
-
-    render() {
-        try {
-            this.hanson = document.querySelector('.hanson');
-        } catch(e) {}
-
-        this.showSlides(this.slideIndex);
-
+    bindTriggers() {
         this.btns.forEach(item => {
             item.addEventListener('click', () => {
                 this.plusSlides(1);
@@ -61,6 +54,31 @@ export default class MainSlider extends Slider {
                 this.showSlides(this.slideIndex);
             })
         })
+        this.prevBtns.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.plusSlides(-1);
+                this.slides[this.slideIndex - 1].classList.add('fadeInDown');
+            })
+        })
+        this.nextBtns.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.plusSlides(1);
+                this.slides[this.slideIndex - 1].classList.add('fadeInDown');
+            })
+        })
     }
 
+    render() {
+        if(this.container) {
+            try {
+                this.hanson = document.querySelector('.hanson');
+            } catch(e) {}
+            this.bindTriggers();
+            this.showSlides(this.slideIndex);
+        }
+    }
 }
